@@ -3,17 +3,11 @@ Digital Ocean hosts our regendata infrastructure, including a droplet named `gra
 
 ![Regen Data Architecture](assets/regendata_architecture.png)
 
-
-
-**Level 1: Architecture Overview**
-
 - **Digital Ocean**:
     - **Droplet: `grants-etl`**: Hosts our dockerized Postgres DB and the Metabaser server for app.regendata.xyz.
     - **Spaces**: An S3 bucket where the passport team uploads data, containing two key files:
         - **`registry_score.jsonl`**: Passport stamps data.
         - **`model_scores.parquet`**: Passport model scores data.
-- **Vercel Page**: Handles Metabase signups, with the repository located at https://github.com/supermodularxyz/regendata.xyz. 
-- **Postmark**: Handles email notifications for Metabase signups.
 - **Github Actions**: Orchestrates the ETL process from the regendata repo.
 - **Live Data Sources**:
     - **Grants Stack Indexer Postgres DB**: we use a foreign data wrapper to connect to this and update Grants DB every 4 hours. Unions with Indexer Chain Data 75.
@@ -29,8 +23,11 @@ Digital Ocean hosts our regendata infrastructure, including a droplet named `gra
     - **Regen Data Metabase**: The Grants DB is used for the Regen Data Metabase, which is used to track and analyze data
     - **QF Calculator**: The Grants DB is used for the QF Calculator, which is used to calculate matching funds for grants
     - **Open Source Observor**: The Grants DB data is imported by Open Source Observor, which is used to track and analyze open source projects
-    - **gitcoin.co/grants-data**: The Grants DB is used for the gitcoin.co/grants-data dashboard, which is used to track and analyze grants data
-    - **GTC Goal Tracker Twitter Bot**: The Grants DB is used to track our progress toward our GMV goal and tweeted out once a day. This uses the Metabase API to get the data and pulls specifically from this card: 
-    - **Impact.gitcoin.co**: This page displays live gitcoin stats using the Metabase API and pulls specifically from this card: 
-    - **leaderboard.allo.gitcoin.co**: This page displays the GMV leaderboard for the Allo protocol, aggregating data across donors, grantees, round operators, and contract developers. 
+    - **[Grants Data Dashboard](https://gitcoin.co/grants-data)**: The Grants DB is used for the gitcoin.co/grants-data dashboard, which is used to track and analyze grants data
+    - **[GTC Goal Tracker Twitter Bot](https://x.com/gtc_goaltracker)**: The Grants DB is used to track our progress toward our GMV goal and tweeted out once a day. This uses the Metabase API to get the data and pulls specifically from [this card](https://app.regendata.xyz/question/196-allo-gmv) 
+    - **[Impact.gitcoin.co](https://impact.gitcoin.co)**: This page displays live gitcoin stats using the Metabase API and pulls specifically from [this card](https://app.regendata.xyz/question/328-gitcoin-high-level-stats) 
+    - **[leaderboard.allo.gitcoin.co](https://leaderboard.allo.gitcoin.co)**: This page displays the GMV leaderboard for the Allo protocol, aggregating data across donors, grantees, round operators, and contract developers. 
 
+## Metabase-specific components
+- **Vercel Page**: Handles Metabase signups, with the repository located at [here](https://github.com/supermodularxyz/regendata.xyz). 
+- **Postmark**: Handles email notifications for Metabase signups.

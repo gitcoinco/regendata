@@ -24,7 +24,7 @@ The `update_materialized_views.py` script is designed to refresh materialized vi
   - **round_roles:** Depends on `indexer.round_roles`.
   - **allov2_distribution_events_for_leaderboard:** This base view is special because it is imported from a Dune query. 
 
-![Create All Donations and All Matching View](assets/create_all_donations_and_all_matching_view.png)
+![Create All Donations and All Matching View](assets/create_all_donations_all_matching.png)
 - **Dependent Materialized Views:** Defined in `DEPENDENT_MATVIEWS`, these rely on the base views and are created after them.
   - **indexer_matching:** Depends on `applications`, `rounds`, and `donations`.
   - **all_donations:** Depends on `donations` and `static_donations`
