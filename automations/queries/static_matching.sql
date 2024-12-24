@@ -17,6 +17,7 @@ cgrants AS (
 ),
 cgrants_matching AS (
   SELECT cgm."round_num" AS "round_num",
+  CONCAT('Gitcoin Grants ', cgm.round_num) as round_name,
     cg."name" AS "title",
     cgm."sub_round_slug" AS "sub_round_slug",
     cgm."match_amount" AS "match_amount_usd",
@@ -25,23 +26,6 @@ cgrants_matching AS (
     cgm."payout_tx_date" AS "payout_tx_date"
   FROM "experimental_views"."cgrants_matching_timing2_20241016193840" cgm
   LEFT JOIN cgrants cg ON cg."grant_id" = cgm."grant_id"
-),
-gg_rounds AS (
-  SELECT CASE
-      WHEN "program" = 'GG19' THEN '19'
-      WHEN "program" = 'GG18' THEN '18'
-      WHEN "program" = 'Beta' THEN '17'
-      ELSE NULL
-    END AS "round_num",
-    gg."type" AS "type",
-    gg."chain_name" AS "chain_name",
-    gg."chain_id" AS "chain_id",
-    gg."round_name" AS "round_name",
-    gg."round_id" AS "round_id"
-  FROM "public"."GrantsProgramRoundsOnGrantsStack" gg
-),
-grants_stack_matching AS (
-  SELECT 1
 ),
 static_matching AS (
   SELECT "round_num",

@@ -1,3 +1,5 @@
+# This script is used to execute commands on the database. It's useful for testing and debugging.
+
 import os
 import psycopg2
 import logging

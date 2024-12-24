@@ -9,7 +9,7 @@ import pandas as pd
 import hashlib
 
 
-TEST_MODE = False
+TEST_MODE = False 
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -392,12 +392,6 @@ def refresh_materialized_views(connection, test_mode: bool = False) -> None:
         test_mode (bool): If True, uses limited data for faster testing
     """
     try:
-        # # Step 0: Cleanup any leftover views (with error handling)
-        # try:
-        #     cleanup_leftover_views(connection)
-        # except Exception as e:
-        #     logger.warning(f"Cleanup of leftover views failed: {e}")
-            # Continue with the refresh process
 
         # Step 1: Store current totals for validation (base views only)
         logger.info("Recording current totals...")
@@ -489,7 +483,7 @@ def refresh_materialized_views(connection, test_mode: bool = False) -> None:
             logger.info(f"Will execute: {cmd}")
 
         execute_command(connection, "\n".join(cleanup_commands))
-
+        
         logger.info("=== POST-CLEANUP HEALTH CHECK ===")
         check_view_exists(connection, 'experimental_views', 'allo_gmv_leaderboard_events')
 
