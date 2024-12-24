@@ -1,13 +1,14 @@
 WITH gg_rounds AS (
     SELECT
-        gg.round_number AS round_num,
+        gg.round_number as round_num,
+        gg.program,
         gg.type AS type,
         gg.chain_name AS chain_name,
         gg.chain_id AS chain_id,
-        gg.round_name AS round_name,
         gg.round_id AS round_id
     FROM
-        experimental_views.all_rounds_20241029131838 gg
+        program_round_labels gg
+    WHERE round_number IS NOT NULL
 ),
  grants_stack_matching as ( 
   SELECT 

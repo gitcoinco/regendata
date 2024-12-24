@@ -1,10 +1,14 @@
 WITH program_data AS (
-    SELECT 
-        program, chain_id, LOWER(round_id) as round_id
-    FROM 
-        "experimental_views"."all_rounds_20240810172652"
-    WHERE 
-        "round_number" IS NOT NULL
+    SELECT
+        gg.round_number,
+        gg.program,
+        gg.type AS type,
+        gg.chain_name AS chain_name,
+        gg.chain_id AS chain_id,
+        gg.round_id AS round_id
+    FROM
+        program_round_labels gg
+    WHERE round_number IS NOT NULL
         AND LOWER("round_id") NOT IN ('0x911ae126be7d88155aa9254c91a49f4d85b83688', '0x40511f88b87b69496a3471cdbe1d3d25ac68e408', '0xc08008d47e3deb10b27fc1a75a96d97d11d58cf8', '0xb5c0939a9bb0c404b028d402493b86d9998af55e')
 ),
 
