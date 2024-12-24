@@ -1,4 +1,4 @@
-name: Every Day (GSheets, Passport)
+name: Every Day (GSheets, Passport, Project Groups)
 
 on:
   schedule:
