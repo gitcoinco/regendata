@@ -50,9 +50,9 @@ def upload_sheet_to_postgres(spreadsheet_id, table_name):
     engine = create_engine(f'postgresql://{user}:{password}@{host}:{port}/{dbname}')
     try:
         df.to_sql(table_name, engine, if_exists='replace', index=False)
-        print(f"Data successfully written to database table {table_name}.")
+        logger.info(f"Data successfully written to database table {table_name}.")
     except Exception as e:
-        print(f"Failed to write data to database table {table_name}: {e}")
+        logger.error(f"Failed to write data to database table {table_name}: {e}")
 
 # Define a list of sheets to process
 sheets_to_process = [
