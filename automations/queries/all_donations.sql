@@ -61,7 +61,7 @@ SELECT
         ),
         'hex'
     ) AS donation_id,
-    round_num::int,
+    round_num::text,
     round_name,
     donor_address, 
     amount_in_usd,
@@ -84,7 +84,7 @@ SELECT
         ),
         'hex'
     ) AS donation_id,
-    round_num,
+    round_num::text,
     round_name,
     donor_address,
     amount_in_usd,

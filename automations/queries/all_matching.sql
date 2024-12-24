@@ -12,7 +12,7 @@ WITH gg_rounds AS (
 ),
  grants_stack_matching as ( 
   SELECT 
-     round_num,
+     round_num::text,
      project_name as title,
      match_amount_in_usd,
      project_payout_address as recipient_address,
@@ -54,7 +54,7 @@ SELECT
         ),
         'hex'
     ) AS matching_id,
-    round_num,
+    round_num::text,
     title,
     match_amount_usd as match_amount_in_usd,
     payoutaddress as recipient_address,
