@@ -16,7 +16,7 @@ We use Github Actions to automate our ETL process. The following are the automat
       - **Update Foreign Schema**: 
         - **Script**: `automations/update_foreign_schema.py`
         - **Purpose**: This script synchronizes the Grants Stack Indexer and MACI databases' schema with their source counterparts. 
-        - **How**: It does this by dropping and recreating foreign tables. The script checks the latest schema version for each database and updates the local schema accordingly. It tracks versions using the `schema_versions.json` file and more details can be found in [ForeignSchemaRefresh](ForeignSchemaRefresh.md).
+        - **How**: It does this by dropping and recreating foreign tables. The script checks the latest schema version for each database and updates the local schema accordingly. It tracks versions using the `schema_versions.json` file. More details can be found in [ForeignSchemaRefresh](ForeignSchemaRefresh.md).
       - **Update Materialized Views**: 
         - **Script**: `automations/update_materialized_views.py`
         - **Purpose**: Refreshes materialized views in the database to ensure they are up-to-date with the latest data, optimizing query performance.

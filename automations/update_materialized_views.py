@@ -9,8 +9,6 @@ import pandas as pd
 import hashlib
 
 
-TEST_MODE = False 
-
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -215,21 +213,9 @@ def refresh_dune_base_view(connection, dune_api_key: str) -> None:
         raise
 
 
-def create_base_matview(connection, matview: str, config: dict, test_mode: bool = False) -> None:
-    """Create a new base materialized view.
-    
-    Args:
-        test_mode (bool): If True, limits data for faster testing
-    """
+def create_base_matview(connection, matview: str, config: dict) -> None:
+    """Create a new base materialized view."""
     index_columns = ', '.join(config['index_columns'])
-    
-    # Add LIMIT only in test mode and only for specific views
-    if test_mode and matview in ['donations', 'applications']:
-        limit1 = "LIMIT 1000"
-        limit2 = "LIMIT 1000"
-    else:
-        limit1 = ""
-        limit2 = ""
 
     # Base SQL structure with subqueries wrapped in parentheses
     base_sql = """
@@ -249,13 +235,11 @@ def create_base_matview(connection, matview: str, config: dict, test_mode: bool 
         FROM (
             (SELECT *, 'indexer' as source 
             FROM indexer.{matview} 
-            WHERE chain_id != 11155111
-            {limit1})
+            WHERE chain_id != 11155111)
             UNION ALL
             (SELECT *, 'static' as source 
             FROM static_indexer_chain_data_75.{matview} 
-            WHERE chain_id != 11155111
-            {limit2})
+            WHERE chain_id != 11155111)
         ) combined_data
     )
     SELECT * FROM ranked_data WHERE row_num = 1;
@@ -263,9 +247,7 @@ def create_base_matview(connection, matview: str, config: dict, test_mode: bool 
     
     create_command = base_sql.format(
         matview=matview,
-        index_columns=index_columns,
-        limit1=limit1,
-        limit2=limit2
+        index_columns=index_columns
     )
     
     execute_command(connection, create_command)
@@ -385,12 +367,8 @@ def check_view_exists(connection, schema: str, matview: str) -> bool:
         return False
 
 
-def refresh_materialized_views(connection, test_mode: bool = False) -> None:
-    """Refresh all materialized views while maintaining dependencies.
-    
-    Args:
-        test_mode (bool): If True, uses limited data for faster testing
-    """
+def refresh_materialized_views(connection) -> None:
+    """Refresh all materialized views while maintaining dependencies."""
     try:
 
         # Step 1: Store current totals for validation (base views only)
@@ -410,7 +388,7 @@ def refresh_materialized_views(connection, test_mode: bool = False) -> None:
                     raise ValueError("DUNE_API_KEY environment variable is required")
                 refresh_dune_base_view(connection, dune_api_key)
             else:
-                create_base_matview(connection, matview, config, test_mode)
+                create_base_matview(connection, matview, config)
             create_indexes(connection, f"{matview}_new", config)
 
         # Step 3: Create all new dependent views
@@ -501,7 +479,7 @@ def main():
     
     try:
         connection = get_connection()
-        refresh_materialized_views(connection, test_mode=TEST_MODE)
+        refresh_materialized_views(connection)
         
         end_time = time.time()
         logger.info(f"Total refresh time: {end_time - start_time:.2f} seconds")
