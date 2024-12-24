@@ -7,7 +7,9 @@ Below is a quick overview of the key docs:
 - [Architecture.md](./Architecture.md): Get an overview of the project’s structure and data flow.
 - [Automations.md](./Automations.md): Learn about the automation scripts that keep the system running smoothly.
     - [MaterializedViewsRefresh.md](./MaterializedViewsRefresh.md): Learn about the main script that refreshes our materialized views.
+    - [ForeignSchemaRefresh.md](./ForeignSchemaRefresh.md): Learn about the main script that refreshes our foreign schema.
 - [Troubleshooting.md](./Troubleshooting.md): Covers common errors and solutions (including server reboots).
 
 
 This docs folder should have everything you need to keep the project running smoothly. 
+

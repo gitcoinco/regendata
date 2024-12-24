@@ -268,7 +268,7 @@ def create_table_from_definition(
     )
     execute_command(create_command, db_params)
 
-def get_latest_schema_version(db_params: Dict) -> Optional[int]:
+def get_maci_latest_schema_version(db_params: Dict) -> Optional[int]:
     """Get the latest schema version from the database, supporting 2 or 3 digit versions."""
     version_query = '''
     SELECT
@@ -286,6 +286,45 @@ def get_latest_schema_version(db_params: Dict) -> Optional[int]:
     logger.info(f"Found latest schema version: {version}")
     return version
 
+def get_indexer_version_with_most_data(db_params: Dict) -> Optional[int]:
+    """Get the chain data version with the most complete data."""
+    latest_version_url = 'https://grants-stack-indexer-v2.gitcoin.co/version'
+    try:
+        current_version = int(requests.get(latest_version_url).text.strip())
+    except Exception as e:
+        logger.error(f"Failed to retrieve latest indexer version from {latest_version_url}: {e}")
+        return None
+
+    candidate_versions = [current_version, current_version - 1]
+    best_version = None
+    best_sum_usd = 0
+
+    for ver in candidate_versions:
+        schema_name = f'chain_data_{ver}'
+        query = f"""
+            WITH ver_data AS (
+                SELECT 
+                    '{schema_name}' AS schema_name,
+                    MAX(timestamp) AS latest_timestamp,
+                    COUNT(*) AS num_donations,
+                    SUM(amount_in_usd) AS sum_amount_in_usd
+                FROM {schema_name}.donations
+                WHERE chain_id != 11155111
+                  AND timestamp >= CAST('2024-09-01' AS TIMESTAMP)
+            )
+            SELECT latest_timestamp, num_donations, sum_amount_in_usd
+            FROM ver_data;
+        """
+        result = run_query(query, db_params)
+        if result is not None and not result.empty:
+            row = result.iloc[0]
+            if row['latest_timestamp'] is not None and row['sum_amount_in_usd'] is not None:
+                if row['sum_amount_in_usd'] > best_sum_usd:
+                    best_sum_usd = row['sum_amount_in_usd']
+                    best_version = ver
+
+    return best_version
+
 def update_schema(config: DatabaseConfig) -> Optional[int]:
     """Update schema for a specific database configuration. Returns the new version if updated."""
     try:
@@ -297,12 +336,12 @@ def update_schema(config: DatabaseConfig) -> Optional[int]:
         current_versions = load_schema_versions()
         current_version = current_versions[config.name]["version"]
         
-        # For indexer
-        if config.name == 'indexer':
-            new_version = 86#int(requests.get('https://grants-stack-indexer-v2.gitcoin.co/version').text)
-        else:
-            new_version = get_latest_schema_version(config.db_params)
-            
+        # Get new version based on config type
+        new_version = (
+            get_indexer_version_with_most_data(config.db_params) if config.name == 'indexer'
+            else get_maci_latest_schema_version(config.db_params)
+        )
+        
         if new_version is None:
             raise ValueError(f"Could not determine schema version for {config.name}")
         
