@@ -51,15 +51,14 @@ def execute_and_fetch(command):
         connection = psycopg2.connect(**DB_PARAMS)
         connection.autocommit = True
         cursor = connection.cursor()
-        
-        for line in command.strip().split('\n'):
-            line = line.strip()
-            if line and not line.startswith('--'):
-                cursor.execute(line)
-                if cursor.description:  # Only fetch if there are results
-                    result = cursor.fetchone()
-                    if result:
-                        print(f"{line}: {result[0]}")
+
+        # Run the whole command at once, no need to split by lines
+        cursor.execute(command)
+        if cursor.description:  
+            results = cursor.fetchall()
+            for row in results:
+                print(row)
+
         logger.info("Command executed successfully.")
     except psycopg2.Error as e:
         logger.error(f"Database error: {e}")
@@ -70,10 +69,10 @@ def execute_and_fetch(command):
 
 def main():
     command = """
-        SHOW tcp_keepalives_idle;
-        SHOW tcp_keepalives_interval;
-        SHOW tcp_keepalives_count;
-        SELECT pg_reload_conf();
+    SELECT pid, query, state
+    FROM pg_stat_activity
+    WHERE query NOT LIKE '%pg_stat_activity%'
+    AND pid <> pg_backend_pid();
     """
 
     try:

@@ -6,6 +6,7 @@ import json
 import os
 import logging
 import numpy as np
+from sqlalchemy import text
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -45,14 +46,28 @@ def upload_sheet_to_postgres(spreadsheet_id, table_name):
     elif table_name == 'program_round_labels':
         df['round_id'] = df['round_id'].astype(str).str.lower()
         df['round_number'] = df['round_number'].astype(str).str.extract('(\d+)').replace('', pd.NA)
+        # Replace empty strings with NaN, then convert to numeric
+        for col in ['chain_id', 'matching_pool']:
+            if col in df.columns:
+                df[col] = df[col].replace('', pd.NA)
+                df[col] = pd.to_numeric(df[col], errors='coerce')
     
     # UPLOAD df TO POSTGRES
     engine = create_engine(f'postgresql://{user}:{password}@{host}:{port}/{dbname}')
     try:
-        df.to_sql(table_name, engine, if_exists='replace', index=False)
-        logger.info(f"Data successfully written to database table {table_name}.")
+        with engine.begin() as conn:  # begin() automatically handles commit/rollback
+            conn.execute(text('SET statement_timeout = 300000;'))  # 5 minutes
+            logger.info(f"Deleting existing data from {table_name}...")
+            
+            # Simple delete for small tables
+            result = conn.execute(text(f'DELETE FROM "public"."{table_name}";'))
+            logger.info(f"Deleted {result.rowcount} rows from {table_name}")
+            
+            df.to_sql(table_name, engine, if_exists='append', index=False, schema='public')
+            
     except Exception as e:
         logger.error(f"Failed to write data to database table {table_name}: {e}")
+        raise
 
 # Define a list of sheets to process
 sheets_to_process = [
