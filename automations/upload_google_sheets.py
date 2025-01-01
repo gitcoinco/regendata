@@ -64,6 +64,7 @@ def upload_sheet_to_postgres(spreadsheet_id, table_name):
             logger.info(f"Deleted {result.rowcount} rows from {table_name}")
             
             df.to_sql(table_name, engine, if_exists='append', index=False, schema='public')
+            logger.info(f"Data successfully written to database table {table_name}.")
             
     except Exception as e:
         logger.error(f"Failed to write data to database table {table_name}: {e}")
